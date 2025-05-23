@@ -166,10 +166,15 @@ class GreedyDecoder(Decoder):
         string = ''
         offsets = []
         for i in range(size):
-            char = self.int_to_char[sequence[i]]
+            val = sequence[i]
+            if isinstance(val, torch.Tensor):
+                idx = val.item() if hasattr(val, 'item') else int(val)
+            else:
+                idx = int(val)
+            char = self.int_to_char[idx]
             if char != self.int_to_char[self.blank_index]:
                 # if this char is a repetition and remove_repetitions=true, then skip
-                if remove_repetitions and i != 0 and char == self.int_to_char[sequence[i - 1]]:
+                if remove_repetitions and i != 0 and char == self.int_to_char[int(sequence[i - 1]) if isinstance(sequence[i - 1], torch.Tensor) else sequence[i - 1]]:
                     pass
                 elif char == self.labels[self.space_index]:
                     string += ' '
